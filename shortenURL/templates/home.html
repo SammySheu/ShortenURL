@@ -11,6 +11,13 @@
     <h3>Welcome {{ user.username }} !!!</h3>
     <br /><br />
     <a href="{% url 'account_logout' %}" class="btn btn-danger">Logout</a>
+  {% else %}
+    <!-- GitHub button starts here -->
+    <a href="{% provider_login_url 'github' %}" class="btn btn-secondary">
+      <i class="fa fa-github fa-fw"></i>
+      <span>Login with GitHub</span>
+    </a>
+    <!-- GitHub button ends here -->
   {% endif %}
 </div>
 
