@@ -16,10 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .apps.accounts.views import Home
+from django.shortcuts import redirect
+from .apps.accounts.views import LoginView
+from .apps.shortener.views import create_short_url, redirect_url, url_stats
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("accounts/", include("allauth.urls")),
-    path("", Home.as_view(), name="home"), # new
+    path("login/", LoginView.as_view(), name="login"),
+    path('', lambda request: redirect('shorten_url/'), name='home'),  # Redirect root to shorten page
+    path('shorten_url/', create_short_url, name='create_short_url'),
+    path('s/<str:short_code>/', redirect_url, name='redirect_url'),
+    path('stats/<str:short_code>/', url_stats, name='url_stats'),
 ]

@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.github",
     "allauth.socialaccount.providers.google",
     'allauth.socialaccount.providers.facebook',
+    # custom app
+    'shortenURL.apps.shortener',
 ]
 
 MIDDLEWARE = [
@@ -141,5 +143,6 @@ AUTHENTICATION_BACKENDS = (
 
 SITE_ID = 1
 ACCOUNT_EMAIL_VERIFICATION = "none"
-LOGIN_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = 'home'  # This is where users will go after login
+LOGIN_URL = '/accounts/login/'    # This is where users go to login
 ACCOUNT_LOGOUT_ON_GET = True
