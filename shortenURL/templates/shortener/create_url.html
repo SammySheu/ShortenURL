@@ -1,55 +1,114 @@
-{% extends "_base.html" %}
+{% extends '_base.html' %}
 
 {% block content %}
 <div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title mb-0">Create Short URL</h3>
+    <!-- URL Creation Card -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="card-title mb-0">Create Short URL</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="urlInput" class="form-label">Enter your URL</label>
+                    <input type="url" 
+                           class="form-control" 
+                           id="urlInput" 
+                           name="url" 
+                           placeholder="https://example.com/your-long-url"
+                           required>
                 </div>
-                <div class="card-body">
-                    {% if error %}
-                    <div class="alert alert-danger">
-                        {{ error }}
-                    </div>
-                    {% endif %}
-                    
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="urlInput" class="form-label">Enter your URL</label>
-                            <input type="url" 
-                                   class="form-control" 
-                                   id="urlInput" 
-                                   name="url" 
-                                   placeholder="https://example.com/your-long-url"
-                                   value="{{ original_url|default:'' }}"
-                                   required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa fa-link"></i> Shorten URL
-                        </button>
-                    </form>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-link"></i> Shorten URL
+                </button>
+            </form>
 
-                    {% if shortened_url %}
-                    <div class="alert alert-success mt-4">
-                        <h5 class="alert-heading">
-                            <i class="fa fa-check-circle"></i> URL Shortened Successfully!
-                        </h5>
-                        <p class="mb-0"><strong>Original URL:</strong> {{ original_url }}</p>
-                        <p class="mb-0">
-                            <strong>Shortened URL:</strong> 
-                            <a href="{{ shortened_url }}" target="_blank">
-                                {{ shortened_url }}
-                                <i class="fa fa-external-link"></i>
-                            </a>
-                        </p>
-                    </div>
-                    {% endif %}
-                </div>
+            {% if shortened_url %}
+            <div class="alert alert-success mt-4">
+                <h5 class="alert-heading">
+                    <i class="fa fa-check-circle"></i> URL Shortened Successfully!
+                </h5>
+                <p class="mb-0"><strong>Original URL:</strong> {{ original_url }}</p>
+                <p class="mb-0">
+                    <strong>Shortened URL:</strong> 
+                    <a href="{{ shortened_url }}" target="_blank">
+                        {{ shortened_url }}
+                        <i class="fa fa-external-link"></i>
+                    </a>
+                </p>
             </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent URLs Statistics -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0">Recent URLs Statistics</h3>
+            <a href="{% url 'url_list' %}" class="btn btn-outline-primary">
+                <i class="fa fa-list"></i> View All URLs
+            </a>
+        </div>
+        <div class="card-body">
+            {% if urls_with_stats %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Short URL</th>
+                                <th>Original URL</th>
+                                <th>Clicks</th>
+                                <th>Unique IPs</th>
+                                <th>Created</th>
+                                <th>Last Access</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in urls_with_stats %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'redirect_url' item.url.short_code %}" 
+                                       target="_blank">
+                                        {{ item.url.short_code }}
+                                        <i class="fa fa-external-link"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    <div class="text-truncate" style="max-width: 200px;" 
+                                         title="{{ item.url.original_url }}">
+                                        {{ item.url.original_url }}
+                                    </div>
+                                </td>
+                                <td>{{ item.stats.total_clicks }}</td>
+                                <td>{{ item.stats.unique_ips }}</td>
+                                <td>{{ item.url.created_at|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    {% if item.stats.last_accessed %}
+                                        {{ item.stats.last_accessed.accessed_at|date:"Y-m-d H:i" }}
+                                    {% else %}
+                                        Never
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'url_stats' item.url.short_code %}" 
+                                       class="btn btn-sm btn-info">
+                                        <i class="fa fa-chart-bar"></i> Stats
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fa fa-link fa-2x text-muted mb-2"></i>
+                    <p class="text-muted mb-0">No shortened URLs yet</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
-{% endblock content %}
+{% endblock %}

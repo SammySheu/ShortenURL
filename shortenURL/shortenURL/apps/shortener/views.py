@@ -7,24 +7,39 @@ from .models import ShortenedURL, URLAccess
 
 @login_required
 def create_short_url(request):
+    # Get user's URLs with stats
+    user_urls = ShortenedURL.objects.filter(user=request.user).order_by('-created_at')[:5]  # Show last 5 URLs
+    urls_with_stats = []
+    
+    for url in user_urls:
+        stats = {
+            'total_clicks': url.accesses.count(),
+            'unique_ips': url.accesses.values('ip_address').distinct().count(),
+            'last_accessed': url.accesses.order_by('-accessed_at').first()
+        }
+        urls_with_stats.append({
+            'url': url,
+            'stats': stats
+        })
+
     if request.method == 'POST':
         original_url = request.POST.get('url')
-        if not original_url:
-            return JsonResponse({'error': 'URL is required'}, status=400)
-            
-        short_code = ShortenedURL.generate_short_code()
-        shortened_url = ShortenedURL.objects.create(
-            user=request.user,
-            original_url=original_url,
-            short_code=short_code
-        )
-        
-        return render(request, 'shortener/create_url.html', {
-            'shortened_url': request.build_absolute_uri(f'/s/{short_code}'),
-            'original_url': original_url
-        })
-        
-    return render(request, 'shortener/create_url.html')
+        if original_url:
+            short_code = ShortenedURL.generate_short_code()
+            shortened_url = ShortenedURL.objects.create(
+                user=request.user,
+                original_url=original_url,
+                short_code=short_code
+            )
+            return render(request, 'shortener/create_url.html', {
+                'shortened_url': request.build_absolute_uri(f'/s/{short_code}'),
+                'original_url': original_url,
+                'urls_with_stats': urls_with_stats
+            })
+    
+    return render(request, 'shortener/create_url.html', {
+        'urls_with_stats': urls_with_stats
+    })
 
 def redirect_url(request, short_code):
     shortened_url = get_object_or_404(ShortenedURL, short_code=short_code)
