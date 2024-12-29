@@ -19,8 +19,9 @@ def create_short_url(request):
             short_code=short_code
         )
         
-        return JsonResponse({
-            'short_url': request.build_absolute_uri(f'/s/{short_code}')
+        return render(request, 'shortener/create_url.html', {
+            'shortened_url': request.build_absolute_uri(f'/s/{short_code}'),
+            'original_url': original_url
         })
         
     return render(request, 'shortener/create_url.html')
