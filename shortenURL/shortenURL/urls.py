@@ -18,14 +18,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
 from .apps.accounts.views import LoginView
-from .apps.shortener.views import create_short_url, redirect_url, url_stats
+from .apps.shortener.views import create_short_url, redirect_url, url_stats, url_list
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("accounts/", include("allauth.urls")),
     path("login/", LoginView.as_view(), name="login"),
-    path('', lambda request: redirect('shorten_url/'), name='home'),  # Redirect root to shorten page
+    path('', create_short_url, name='create_url'),                    # Changed to create_url
+    # path('', include('shortenURL.apps.shortener.urls', namespace='shortener')),
     path('shorten_url/', create_short_url, name='create_short_url'),
+    path('my-urls/', url_list, name='url_list'),
     path('s/<str:short_code>/', redirect_url, name='redirect_url'),
     path('stats/<str:short_code>/', url_stats, name='url_stats'),
 ]

@@ -23,11 +23,15 @@ class ShortenedURL(models.Model):
         return f"{self.short_code} -> {self.original_url}"
 
 class URLAccess(models.Model):
-    url = models.ForeignKey(ShortenedURL, on_delete=models.CASCADE, related_name='accesses')
+    shortened_url = models.ForeignKey(
+        ShortenedURL, 
+        on_delete=models.CASCADE,
+        related_name='accesses'  # This creates the reverse relation
+    )
     accessed_at = models.DateTimeField(auto_now_add=True)
     ip_address = models.GenericIPAddressField()
     user_agent = models.TextField(null=True, blank=True)
     referrer = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.url.short_code} accessed from {self.ip_address}"
+        return f"{self.shortened_url.short_code} accessed from {self.ip_address}"

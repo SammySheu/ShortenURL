@@ -11,5 +11,5 @@ class ShortenedURLAdmin(admin.ModelAdmin):
 
 @admin.register(URLAccess)
 class URLAccessAdmin(admin.ModelAdmin):
-    list_display = ('url', 'ip_address', 'accessed_at')
+    list_display = ('shortened_url', 'ip_address', 'accessed_at')
     list_filter = ('accessed_at',)

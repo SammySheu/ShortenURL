@@ -31,7 +31,7 @@ def redirect_url(request, short_code):
     
     # 記錄訪問資訊
     URLAccess.objects.create(
-        url=shortened_url,
+        shortened_url=shortened_url,
         ip_address=request.META.get('REMOTE_ADDR'),
         user_agent=request.META.get('HTTP_USER_AGENT'),
         referrer=request.META.get('HTTP_REFERER')
@@ -52,4 +52,24 @@ def url_stats(request, short_code):
     return render(request, 'shortener/url_stats.html', {
         'url': url,
         'stats': stats
+    })
+
+@login_required
+def url_list(request):
+    user_urls = ShortenedURL.objects.filter(user=request.user).order_by('-created_at')
+    
+    urls_with_stats = []
+    for url in user_urls:
+        stats = {
+            'total_clicks': url.accesses.count(),  # Use the new related_name
+            'unique_ips': url.accesses.values('ip_address').distinct().count(),
+            'last_accessed': url.accesses.order_by('-accessed_at').first()
+        }
+        urls_with_stats.append({
+            'url': url,
+            'stats': stats
+        })
+    
+    return render(request, 'shortener/url_list.html', {
+        'urls_with_stats': urls_with_stats
     })
