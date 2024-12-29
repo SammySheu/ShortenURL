@@ -1,90 +1,105 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views import View
 from .models import ShortenedURL, URLAccess
 
-# Create your views here.
-
-@login_required
-def create_short_url(request):
-    # Get user's URLs with stats
-    user_urls = ShortenedURL.objects.filter(user=request.user).order_by('-created_at')[:5]  # Show last 5 URLs
-    urls_with_stats = []
+class URLStatsManager:
     
-    for url in user_urls:
+    @staticmethod
+    def get_url_stats(url, include_recent=False):
         stats = {
             'total_clicks': url.accesses.count(),
             'unique_ips': url.accesses.values('ip_address').distinct().count(),
             'last_accessed': url.accesses.order_by('-accessed_at').first()
         }
-        urls_with_stats.append({
+        if include_recent:
+            stats['recent_accesses'] = url.accesses.order_by('-accessed_at')[:10]
+        return stats
+
+    @classmethod
+    def get_urls_with_stats(cls, urls):
+        return [{
             'url': url,
-            'stats': stats
+            'stats': cls.get_url_stats(url)
+        } for url in urls]
+
+@method_decorator(login_required, name='dispatch')
+class URLCreateView(View):
+    template_name = 'shortener/create_url.html'
+
+    def get_recent_urls(self):
+        user_urls = ShortenedURL.objects.filter(
+            user=self.request.user
+        ).order_by('-created_at')[:5]
+        return URLStatsManager.get_urls_with_stats(user_urls)
+
+    def get(self, request):
+        return render(request, self.template_name, {
+            'urls_with_stats': self.get_recent_urls()
         })
 
-    if request.method == 'POST':
+    def post(self, request):
         original_url = request.POST.get('url')
-        if original_url:
-            short_code = ShortenedURL.generate_short_code()
-            shortened_url = ShortenedURL.objects.create(
-                user=request.user,
-                original_url=original_url,
-                short_code=short_code
-            )
-            return render(request, 'shortener/create_url.html', {
-                'shortened_url': request.build_absolute_uri(f'/s/{short_code}'),
-                'original_url': original_url,
-                'urls_with_stats': urls_with_stats
-            })
-    
-    return render(request, 'shortener/create_url.html', {
-        'urls_with_stats': urls_with_stats
-    })
+        if not original_url:
+            return redirect('create_url')
 
-def redirect_url(request, short_code):
-    shortened_url = get_object_or_404(ShortenedURL, short_code=short_code)
-    
-    # 記錄訪問資訊
-    URLAccess.objects.create(
-        shortened_url=shortened_url,
-        ip_address=request.META.get('REMOTE_ADDR'),
-        user_agent=request.META.get('HTTP_USER_AGENT'),
-        referrer=request.META.get('HTTP_REFERER')
-    )
-    
-    return redirect(shortened_url.original_url)
+        short_code = ShortenedURL.generate_short_code()
+        shortened_url = ShortenedURL.objects.create(
+            user=request.user,
+            original_url=original_url,
+            short_code=short_code
+        )
 
-@login_required
-def url_stats(request, short_code):
-    url = get_object_or_404(ShortenedURL, short_code=short_code, user=request.user)
-    
-    stats = {
-        'total_clicks': url.accesses.count(),
-        'unique_ips': url.accesses.values('ip_address').distinct().count(),
-        'recent_accesses': url.accesses.order_by('-accessed_at')[:10]
-    }
-    
-    return render(request, 'shortener/url_stats.html', {
-        'url': url,
-        'stats': stats
-    })
+        return render(request, self.template_name, {
+            'shortened_url': request.build_absolute_uri(f'/s/{short_code}'),
+            'original_url': original_url,
+            'urls_with_stats': self.get_recent_urls()
+        })
 
-@login_required
-def url_list(request):
-    user_urls = ShortenedURL.objects.filter(user=request.user).order_by('-created_at')
-    
-    urls_with_stats = []
-    for url in user_urls:
-        stats = {
-            'total_clicks': url.accesses.count(),  # Use the new related_name
-            'unique_ips': url.accesses.values('ip_address').distinct().count(),
-            'last_accessed': url.accesses.order_by('-accessed_at').first()
-        }
-        urls_with_stats.append({
+class URLRedirectView(View):
+    def get(self, request, short_code):
+        shortened_url = get_object_or_404(ShortenedURL, short_code=short_code)
+        
+        URLAccess.objects.create(
+            shortened_url=shortened_url,
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT'),
+            referrer=request.META.get('HTTP_REFERER')
+        )
+        
+        return redirect(shortened_url.original_url)
+
+@method_decorator(login_required, name='dispatch')
+class URLStatsView(View):
+    template_name = 'shortener/url_stats.html'
+
+    def get(self, request, short_code):
+        url = get_object_or_404(
+            ShortenedURL, 
+            short_code=short_code, 
+            user=request.user
+        )
+        
+        stats = URLStatsManager.get_url_stats(url, include_recent=True)
+        
+        return render(request, self.template_name, {
             'url': url,
             'stats': stats
         })
-    
-    return render(request, 'shortener/url_list.html', {
-        'urls_with_stats': urls_with_stats
-    })
+
+@method_decorator(login_required, name='dispatch')
+class URLListView(View):
+    template_name = 'shortener/url_list.html'
+
+    def get(self, request):
+        user_urls = ShortenedURL.objects.filter(
+            user=request.user
+        ).order_by('-created_at')
+        
+        urls_with_stats = URLStatsManager.get_urls_with_stats(user_urls)
+        
+        return render(request, self.template_name, {
+            'urls_with_stats': urls_with_stats
+        })
