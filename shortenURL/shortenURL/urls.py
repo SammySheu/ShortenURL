@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import redirect
+from django.contrib.auth.views import LogoutView
 from .apps.accounts.views import LoginView
 from .apps.shortener.views import (
     URLCreateView, URLRedirectView, 
@@ -26,7 +26,7 @@ from .apps.shortener.views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("accounts/", include("allauth.urls")),
-    path("login/", LoginView.as_view(), name="login"),
+    path('logout/', LogoutView.as_view(), name='logout'),
     path('', URLCreateView.as_view(), name='create_url'),
     path('s/<str:short_code>/', URLRedirectView.as_view(), name='redirect_url'),
     path('stats/<str:short_code>/', URLStatsView.as_view(), name='url_stats'),
