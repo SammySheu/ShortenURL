@@ -1,20 +1,35 @@
-{% extends 'base.html' %}
+{% extends '_base.html' %}
 
 {% block content %}
-<div class="container">
-    <h2>Statistics for {{ url.short_code }}</h2>
-    
-    <div class="stats">
-        <p>Original URL: {{ url.original_url }}</p>
-        <p>Total Clicks: {{ stats.total_clicks }}</p>
-        <p>Unique IPs: {{ stats.unique_ips }}</p>
-        
-        <h3>Recent Accesses</h3>
-        <ul>
-        {% for access in stats.recent_accesses %}
-            <li>{{ access.accessed_at }} - {{ access.ip_address }}</li>
-        {% endfor %}
-        </ul>
+<div class="container mt-5">  {# Added mt-5 for better spacing #}
+    <div class="card">  {# Added card for consistent styling #}
+        <div class="card-header">
+            <h2 class="card-title mb-0">Statistics for {{ url.short_code }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="stats">
+                <div class="mb-4">
+                    <p class="mb-2"><strong>Original URL:</strong> 
+                        <a href="{{ url.original_url }}" target="_blank">
+                            {{ url.original_url }}
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </p>
+                    <p class="mb-2"><strong>Total Clicks:</strong> {{ stats.total_clicks }}</p>
+                    <p class="mb-2"><strong>Unique IPs:</strong> {{ stats.unique_ips }}</p>
+                </div>
+                
+                <h3>Recent Accesses</h3>
+                <ul class="list-group">
+                    {% for access in stats.recent_accesses %}
+                        <li class="list-group-item">
+                            <i class="fa fa-clock-o"></i> {{ access.accessed_at }}
+                            <i class="fa fa-globe ml-3"></i> {{ access.ip_address }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
