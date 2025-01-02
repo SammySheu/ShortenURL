@@ -16,6 +16,7 @@ EXPOSE 8000
 
 RUN echo '#!/bin/sh\n\
 python manage.py migrate\n\
+python manage.py setup_initial_data\n\
 python manage.py runserver 0.0.0.0:8000\n'\
 > /app/entrypoint.sh \
 && chmod +x /app/entrypoint.sh
