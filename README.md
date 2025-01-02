@@ -12,7 +12,8 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 FACEBOOK_CLIENT_ID=
 FACEBOOK_CLIENT_SECRET=
-ALLOWED_HOSTS=          # Seperate hosts with comma
+ALLOWED_HOSTS=              # Seperate hosts with comma
+CSRF_TRUSTED_ORIGINS=       # Seperate hosts with comma
 ```
 
 ### Deployment
