@@ -14,11 +14,14 @@ class Command(BaseCommand):
         self.setup_social_apps()
 
     def setup_superuser(self):
-        if not User.objects.filter(username='admin').exists():
+        django_admin_user = os.getenv('DJANGO_SUPERUSER_USERNAME')
+        django_admin_email = os.getenv('DJANGO_SUPERUSER_EMAIL')
+        django_admin_password = os.getenv('DJANGO_SUPERUSER_PASSWORD')
+        if not User.objects.filter(username=django_admin_user).exists() and django_admin_user and django_admin_password:
             User.objects.create_superuser(
-                username=os.getenv('DJANGO_SUPERUSER_USERNAME', 'admin'),
-                email=os.getenv('DJANGO_SUPERUSER_EMAIL', 'admin@example.com'),
-                password=os.getenv('DJANGO_SUPERUSER_PASSWORD', 'adminpassword')
+                username=django_admin_user,
+                email=django_admin_email,
+                password=django_admin_password
             )
             self.stdout.write(
                 self.style.SUCCESS('Superuser created successfully')
@@ -26,7 +29,7 @@ class Command(BaseCommand):
 
     def setup_site(self):
         site = Site.objects.get(id=1)
-        site.domain = '127.0.0.1:8000'
+        site.domain = os.getenv('SITE_DOMAIN')
         site.name = 'ShortenURL'
         site.save()
         self.stdout.write(
