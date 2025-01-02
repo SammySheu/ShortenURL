@@ -13,6 +13,16 @@
                 "runserver"
             ],
             "django": true
+        },
+        {
+            "name": "Initail Data",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "setup_initial_data"
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     'allauth.socialaccount.providers.facebook',
     # custom app
+    'shortenURL.apps.accounts',
     'shortenURL.apps.shortener',
 ]
 
