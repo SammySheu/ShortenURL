@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -27,7 +28,7 @@ SECRET_KEY = 'django-insecure-oios0b+y)j)&6x+0jo(dz^a@y+6s-=ps#9=ms**dh=ayqyc=kw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') 
 
 
 # Application definition

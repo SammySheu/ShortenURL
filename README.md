@@ -12,6 +12,7 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 FACEBOOK_CLIENT_ID=
 FACEBOOK_CLIENT_SECRET=
+ALLOWED_HOSTS=          # Seperate hosts with comma
 ```
 
 ### Deployment
@@ -20,3 +21,4 @@ FACEBOOK_CLIENT_SECRET=
 
 > Run Container \
 > `docker run -d -p 8000:8000 --env-file <env_file_location> <image_name>`
+
