@@ -19,7 +19,7 @@ def log_user_login(sender, request, user, **kwargs):
     logger.info(f"User logged in - ID: {user.id}, "
                 f"Email: {user.email}, "
                 f"Username: {user.username}, "
-                f"Provider: {social_account.provider}, "
+                f"Provider: {provider}, "
                 f"Response Status: {request.META.get('HTTP_STATUS', 'N/A')}")
     logger.info(f"Request Headers: {request.headers}")
     logger.info(f"Redirect URL from settings: {settings.LOGIN_REDIRECT_URL}")
