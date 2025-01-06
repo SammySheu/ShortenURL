@@ -100,6 +100,7 @@ DATABASES = {
         'NAME': 'shortenurl',
         'USER': 'shortenurl_user',
         'PASSWORD': 'shortenurl_user',
+        # 'HOST': '/cloudsql/danjo-oauth:asia-east1:shortenurl-mysql',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
@@ -140,11 +141,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',
-            'formatter': 'verbose',
-        },
     },
     'loggers': {
         'django': {
@@ -157,7 +153,7 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        'accounts': {  # 你的應用名稱
+        'accounts': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
@@ -196,6 +192,7 @@ AUTHENTICATION_BACKENDS = (
 SITE_ID = 1
 ACCOUNT_EMAIL_VERIFICATION = "none"
 LOGIN_URL = '/accounts/login/'    # This is where users go to login
+LOGIN_REDIRECT_URL = '/'  # Change to explicit path instead of URL name
 LOGIN_REDIRECT_URL = 'create_url'  # This is where users will go after login
 LOGOUT_REDIRECT_URL = 'account_login'  # Django's login name
 
