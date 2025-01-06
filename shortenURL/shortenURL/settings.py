@@ -100,7 +100,7 @@ DATABASES = {
         'USER': 'shortenurl_user',
         'PASSWORD': 'shortenurl_user',
         'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'PORT': '3307',
     }
 }
 
@@ -122,6 +122,47 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {module} {message}',
+            'style': '{',
+            'datefmt': '%d/%b/%Y %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'allauth': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'accounts': {  # 你的應用名稱
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
 
 
 # Internationalization
