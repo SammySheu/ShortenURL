@@ -12,7 +12,9 @@
             "args": [
                 "runserver"
             ],
-            "django": true
+            "django": true,
+            "justMyCode": false
+
         },
         {
             "name": "Initail Data",

@@ -143,17 +143,17 @@ LOGGING = {
         },
     },
     'loggers': {
-        # 'django': {
-        #     'handlers': ['console'],
-        #     'level': 'INFO',
-        #     'propagate': True,
-        # },
-        # 'allauth': {
-        #     'handlers': ['console'],
-        #     'level': 'DEBUG',
-        #     'propagate': True,
-        # },
-        'accounts': {  # 你的應用名稱
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'allauth': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'accounts': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,

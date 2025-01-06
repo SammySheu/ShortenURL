@@ -39,41 +39,57 @@ class Command(BaseCommand):
     def setup_social_apps(self):
         site = Site.objects.get(id=1)
 
-        # Setup Google
-        if not SocialApp.objects.filter(provider='google').exists():
-            google_app = SocialApp.objects.create(
-                provider='google',
-                name='Google OAuth2',
-                client_id=os.getenv('GOOGLE_CLIENT_ID', ''),
-                secret=os.getenv('GOOGLE_CLIENT_SECRET', '')
-            )
-            google_app.sites.add(site)
-            self.stdout.write(
-                self.style.SUCCESS('Google OAuth2 configured')
-            )
+        # Dictionary of provider configurations
+        providers = {
+            'facebook': {
+                'name': 'Facebook OAuth2',
+                'client_id': os.getenv('FACEBOOK_CLIENT_ID', ''),
+                'secret': os.getenv('FACEBOOK_CLIENT_SECRET', ''),
+                'settings': {
+                    'scope': ['email', 'public_profile'],
+                    'auth_params': {},  # Required for newer allauth versions
+                }
+            },
+            'google': {
+                'name': 'Google OAuth2',
+                'client_id': os.getenv('GOOGLE_CLIENT_ID', ''),
+                'secret': os.getenv('GOOGLE_CLIENT_SECRET', ''),
+                'settings': {
+                    'scope': ['profile', 'email'],
+                    'auth_params': {},
+                }
+            },
+            'github': {
+                'name': 'Github OAuth2',
+                'client_id': os.getenv('GITHUB_CLIENT_ID', ''),
+                'secret': os.getenv('GITHUB_CLIENT_SECRET', ''),
+                'settings': {
+                    'scope': ['user:email'],
+                    'auth_params': {},
+                }
+            }
+        }
 
-        # Setup Facebook
-        if not SocialApp.objects.filter(provider='facebook').exists():
-            facebook_app = SocialApp.objects.create(
-                provider='facebook',
-                name='Facebook OAuth2',
-                client_id=os.getenv('FACEBOOK_CLIENT_ID', ''),
-                secret=os.getenv('FACEBOOK_CLIENT_SECRET', '')
+        for provider, config in providers.items():
+            social_app, created = SocialApp.objects.get_or_create(
+                provider=provider,
+                defaults={
+                    'name': config['name'],
+                    'client_id': config['client_id'],
+                    'secret': config['secret'],
+                }
             )
-            facebook_app.sites.add(site)
+            
+            if not created:
+                # Update existing app if needed
+                social_app.client_id = config['client_id']
+                social_app.secret = config['secret']
+                social_app.save()
+
+            # Make sure the site is associated
+            if site not in social_app.sites.all():
+                social_app.sites.add(site)
+
             self.stdout.write(
-                self.style.SUCCESS('Facebook OAuth2 configured')
-            )
-        
-        # Setup Github
-        if not SocialApp.objects.filter(provider='github').exists():
-            github_app = SocialApp.objects.create(
-                provider='github',
-                name='Github OAuth2',
-                client_id=os.getenv('GITHUB_CLIENT_ID', ''),
-                secret=os.getenv('GITHUB_CLIENT_SECRET', '')
-            )
-            github_app.sites.add(site)
-            self.stdout.write(
-                self.style.SUCCESS('Github OAuth2 configured')
+                self.style.SUCCESS(f'{provider} OAuth2 {"created" if created else "updated"}')
             )
