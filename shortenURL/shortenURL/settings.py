@@ -26,7 +26,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = 'django-insecure-oios0b+y)j)&6x+0jo(dz^a@y+6s-=ps#9=ms**dh=ayqyc=kw'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
@@ -67,6 +67,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # allauth
     'allauth.account.middleware.AccountMiddleware',
+    # custom middleware
+    'shortenURL.apps.accounts.middleware.OAuthDebugMiddleware',
 ]
 
 ROOT_URLCONF = 'shortenURL.urls'
@@ -124,6 +126,42 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {module} {message}',
+            'style': '{',
+            'datefmt': '%d/%b/%Y %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        # 'django': {
+        #     'handlers': ['console'],
+        #     'level': 'INFO',
+        #     'propagate': True,
+        # },
+        # 'allauth': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,
+        # },
+        'accounts': {  # 你的應用名稱
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -151,44 +189,25 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',  # Temporarily set to DEBUG
-        },
-        'allauth': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-        'oauth_debug': {  # Custom logger
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        }
-    },
+SOCIALACCOUNT_PROVIDERS = {
+    'facebook': {
+        'METHOD': 'oauth2',
+        'SCOPE': ['email', 'public_profile'],
+        # 'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'VERIFIED_EMAIL': False,
+        'EXCHANGE_TOKEN': True,  # Important for completing OAuth flow
+        'OAUTH_PKCE_ENABLED': True,
+        'LOGIN_ON_GET': True,
+    }
 }
-
-
+ACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
 
 SITE_ID = 1
 ACCOUNT_EMAIL_VERIFICATION = "none"
 LOGIN_URL = '/accounts/login/'    # This is where users go to login
-LOGIN_REDIRECT_URL = 'create_url'  # This is where users will go after login
+LOGIN_REDIRECT_URL = '/'  # Change to explicit path instead of URL name
+# LOGIN_REDIRECT_URL = 'create_url'  # This is where users will go after login
 LOGOUT_REDIRECT_URL = 'account_login'  # Django's login name
 
 ACCOUNT_LOGOUT_ON_GET = True
-
-ACCOUNT_DEFAULT_HTTP_PROTOCOL='https'
