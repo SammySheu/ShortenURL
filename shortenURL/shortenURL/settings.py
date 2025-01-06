@@ -26,7 +26,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = 'django-insecure-oios0b+y)j)&6x+0jo(dz^a@y+6s-=ps#9=ms**dh=ayqyc=kw'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
@@ -99,7 +99,7 @@ DATABASES = {
         'NAME': 'shortenurl',
         'USER': 'shortenurl_user',
         'PASSWORD': 'shortenurl_user',
-        'HOST': '127.0.0.1',
+        'HOST': '/cloudsql/danjo-oauth:asia-east1:shortenurl-mysql',
         'PORT': '3306',
     }
 }
@@ -151,6 +151,38 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Temporarily set to DEBUG
+        },
+        'allauth': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+        'oauth_debug': {  # Custom logger
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        }
+    },
+}
+
+
+
 SITE_ID = 1
 ACCOUNT_EMAIL_VERIFICATION = "none"
 LOGIN_URL = '/accounts/login/'    # This is where users go to login
@@ -158,3 +190,5 @@ LOGIN_REDIRECT_URL = 'create_url'  # This is where users will go after login
 LOGOUT_REDIRECT_URL = 'account_login'  # Django's login name
 
 ACCOUNT_LOGOUT_ON_GET = True
+
+ACCOUNT_DEFAULT_HTTP_PROTOCOL='https'
