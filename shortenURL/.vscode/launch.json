@@ -5,12 +5,29 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Django Server",
+            "name": "Django HTTP Server",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "args": [
-                "runserver"
+                "runserver", 
+            ],
+            "django": true,
+            "justMyCode": false
+
+        },
+        {
+            "name": "Django HTTPS Server",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "runserver_plus", 
+                "localhost:8000",
+                "--cert-file",
+                "localhost.crt",
+                "--key-file",
+                "localhost.key"
             ],
             "django": true,
             "justMyCode": false

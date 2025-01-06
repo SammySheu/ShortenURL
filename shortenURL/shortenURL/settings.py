@@ -42,15 +42,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # new
-    "django.contrib.sites",
+    
+    'django_extensions',
+    'django.contrib.sites',
     # 3rd party
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     # social providers
-    "allauth.socialaccount.providers.github",
-    "allauth.socialaccount.providers.google",
+    'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.facebook',
     # custom app
     'shortenURL.apps.accounts',
@@ -100,7 +101,7 @@ DATABASES = {
         'USER': 'shortenurl_user',
         'PASSWORD': 'shortenurl_user',
         'HOST': '127.0.0.1',
-        'PORT': '3307',
+        'PORT': '3306',
     }
 }
 
