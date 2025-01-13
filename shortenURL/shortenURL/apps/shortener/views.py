@@ -64,12 +64,19 @@ class URLRedirectView(View):
         
         URLAccess.objects.create(
             shortened_url=shortened_url,
-            ip_address=request.META.get('REMOTE_ADDR'),
+            # ip_address=request.META.get('REMOTE_ADDR'),
+            ip_address=self.get_client_ip(request),
             user_agent=request.META.get('HTTP_USER_AGENT'),
             referrer=request.META.get('HTTP_REFERER')
         )
         
         return redirect(shortened_url.original_url)
+    
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            return x_forwarded_for.split(',')[0].strip()
+        return request.META.get('REMOTE_ADDR')
 
 @method_decorator(login_required, name='dispatch')
 class URLStatsView(View):

@@ -192,7 +192,6 @@ AUTHENTICATION_BACKENDS = (
 SITE_ID = 1
 ACCOUNT_EMAIL_VERIFICATION = "none"
 LOGIN_URL = '/accounts/login/'    # This is where users go to login
-LOGIN_REDIRECT_URL = '/'  # Change to explicit path instead of URL name
 LOGIN_REDIRECT_URL = 'create_url'  # This is where users will go after login
 LOGOUT_REDIRECT_URL = 'account_login'  # Django's login name
 
